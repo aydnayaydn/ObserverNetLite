@@ -4,10 +4,19 @@
     <ProjectReference Include="..\ObserverNetLite.Core\ObserverNetLite.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="14.0.0" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+    <ItemGroup>
+    <ProjectReference Include="..\ObserverNetLite.Core\ObserverNetLite.Core.csproj" />
+    <ProjectReference Include="..\ObserverNetLite.Infrastructure\ObserverNetLite.Infrastructure.csproj" />
+  </ItemGroup>
 
 </Project>

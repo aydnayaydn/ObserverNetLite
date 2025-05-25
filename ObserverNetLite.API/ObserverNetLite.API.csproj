@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ObserverNetLite.Core\ObserverNetLite.Core.csproj" />
-    <ProjectReference Include="..\ObserverNetLite.Infrastructure\ObserverNetLite.Infrastructure.csproj" />
+    <ProjectReference Include="..\ObserverNetLite.Application\ObserverNetLite.Application.csproj" />
   </ItemGroup>
 
 </Project>

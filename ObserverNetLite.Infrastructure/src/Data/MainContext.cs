@@ -5,7 +5,7 @@ using ObserverNetLite.Entities;
 
 namespace ObserverNetLite.Data;
 
-public class MainContext(DbContextOptions<MainContext> options) : DbContext(options)
+public class ObserverNetLiteDbContext(DbContextOptions<ObserverNetLiteDbContext> options) : DbContext(options)
 {
     public DbSet<User> Users { get; set; }
 
