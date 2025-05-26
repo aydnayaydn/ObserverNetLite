@@ -4,7 +4,7 @@ using System.Text;
 namespace ObserverNetLite.Core.Helpers;
 
 public class EncryptionHelper
-{   
+{
     private static byte[] GetCipherKey()
     {
         return File.ReadAllBytes("cipher.txt"); // Must be 32 bytes
@@ -40,5 +40,15 @@ public class EncryptionHelper
         }
 
         return Encoding.UTF8.GetString(decryptedData);
+    }
+    
+    public static string ComputeMd5Hash(string input)
+    {
+        using (var md5 = MD5.Create())
+        {
+            var inputBytes = Encoding.UTF8.GetBytes(input);
+            var hashBytes = md5.ComputeHash(inputBytes);
+            return Convert.ToHexString(hashBytes).ToLower();
+        }
     }
 }
