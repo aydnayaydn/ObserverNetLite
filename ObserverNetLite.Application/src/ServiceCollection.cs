@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using ObserverNetLite.Application.Abstractions;
 using ObserverNetLite.Application.Services;
-using ObserverNetLite.Infrastructure;
 
 namespace ObserverNetLite.Application;
 
@@ -20,8 +19,10 @@ public static class ServiceCollectionExtensions
         if (services == null)
             throw new ArgumentNullException(nameof(services));
 
-        services.AddInfrastructureServices();
+        // Add AutoMapper
+        services.AddAutoMapper(typeof(ServiceCollectionExtensions).Assembly);
 
+        // Add services
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();
 

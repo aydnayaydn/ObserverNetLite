@@ -4,8 +4,6 @@ namespace ObserverNetLite.Application.Abstractions;
 
 public interface IUserService : IService
 {
-    Task<TokenResponseDto> AuthenticateAsync(LoginDto loginDto);
-    
     Task<bool> ValidateUserAsync(string userName, string password);
 
     Task<UserDto?> GetUserByIdAsync(Guid userId);
@@ -14,7 +12,7 @@ public interface IUserService : IService
 
     Task<IEnumerable<UserDto>> GetAllUsersAsync();
 
-    Task<UserDto> CreateUserAsync(UserDto userDto);
+    Task<UserDto> CreateUserAsync(CreateUserDto createUserDto);
 
     Task<UserDto?> UpdateUserAsync(UserDto userDto);
 

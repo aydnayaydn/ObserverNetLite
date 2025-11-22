@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using ObserverNetLite.Data.Mappings;
-using ObserverNetLite.Entities;
+using ObserverNetLite.Core.Entities;
 
 namespace ObserverNetLite.Data;
 
@@ -18,6 +18,6 @@ public class ObserverNetLiteDbContext(DbContextOptions<ObserverNetLiteDbContext>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Configure your entity mappings here
-        _ = modelBuilder.Entity<User>(UserMapping.OnModelCreating);
+        UserMapping.OnModelCreating(modelBuilder.Entity<User>());
     }
 }

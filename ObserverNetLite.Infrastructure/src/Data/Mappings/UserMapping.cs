@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using ObserverNetLite.Core.Helpers;
-using ObserverNetLite.Entities;
+using ObserverNetLite.Core.Entities;
 
 namespace ObserverNetLite.Data.Mappings;
 public class UserMapping
@@ -13,7 +13,7 @@ public class UserMapping
             .IsRequired();
 
         _ = builder.Property(u => u.Password)
-            .HasMaxLength(20)
+            .HasMaxLength(255)
             .IsRequired();
 
         _ = builder.Property(u => u.Role)
@@ -28,10 +28,17 @@ public class UserMapping
         modelBuilder.HasData(
             new User
             {
-                Id = Guid.Parse("E0CB33F3-591A-4A25-AABA-BD05F796B5FB"),
-                UserName = "observer",
-                Password = EncryptionHelper.ComputeMd5Hash("lite_1qaz"),
+                Id = Guid.Parse("8e445865-a24d-4543-a6c6-9443d048cdb9"),
+                UserName = "admin",
+                Password = "admin123",
                 Role = "admin"
+            },
+            new User
+            {
+                Id = Guid.Parse("9e225865-a24d-4543-a6c6-9443d048cdb9"),
+                UserName = "user",
+                Password = "user123",
+                Role = "user"
             }
         );
     }

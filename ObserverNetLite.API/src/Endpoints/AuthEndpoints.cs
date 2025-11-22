@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ObserverNetLite.API.Middlewares;
 using ObserverNetLite.Application.Abstractions;
 using ObserverNetLite.Application.DTOs;
+using System;
 
 namespace ObserverNetLite.API.Endpoints
 {
@@ -15,14 +16,30 @@ namespace ObserverNetLite.API.Endpoints
             group.MapPost("/login", async (
                 [FromBody] LoginDto loginDto,
                 [FromServices] IUserService userService,
+                [FromServices] IAuthService authService,
                 HttpContext httpContext) =>
             {
                 try
                 {
-                    var token = await userService.AuthenticateAsync(loginDto);
+                    // Validate user credentials
+                    var isValid = await userService.ValidateUserAsync(loginDto.UserName, loginDto.Password);
+                    if (!isValid)
+                    {
+                        return Results.Unauthorized();
+                    }
+
+                    // Get user to retrieve role
+                    var user = await userService.GetUserByUserNameAsync(loginDto.UserName);
+                    if (user == null)
+                    {
+                        return Results.Unauthorized();
+                    }
+
+                    // Generate token
+                    var token = await authService.GenerateTokenAsync(user.UserName, user.Role);
                     return Results.Ok(token);
                 }
-                catch (UnauthorizedAccessException ex)
+                catch (UnauthorizedAccessException)
                 {
                     return Results.Unauthorized();
                 }

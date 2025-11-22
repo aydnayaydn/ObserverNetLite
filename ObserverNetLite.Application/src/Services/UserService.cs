@@ -2,8 +2,7 @@ using AutoMapper;
 using ObserverNetLite.Application.Abstractions;
 using ObserverNetLite.Application.DTOs;
 using ObserverNetLite.Core.Abstractions;
-using ObserverNetLite.Core.Helpers;
-using ObserverNetLite.Entities;
+using ObserverNetLite.Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,34 +14,13 @@ namespace ObserverNetLite.Application.Services
     {
         private readonly IRepository<User> _userRepository;
         private readonly IMapper _mapper;
-        private readonly IAuthService _authService;
 
         public UserService(
             IRepository<User> userRepository, 
-            IMapper mapper,
-            IAuthService authService)
+            IMapper mapper)
         {
             _userRepository = userRepository;
             _mapper = mapper;
-            _authService = authService;
-        }
-
-        public async Task<TokenResponseDto> AuthenticateAsync(LoginDto loginDto)
-        {
-            var isValid = await ValidateUserAsync(loginDto.UserName, loginDto.Password);
-            
-            if (!isValid)
-            {
-                throw new UnauthorizedAccessException("Invalid username or password");
-            }
-
-            var user = (await _userRepository.FindAsync(u => u.UserName == loginDto.UserName)).FirstOrDefault();
-            if (user == null)
-            {
-                throw new UnauthorizedAccessException("User not found");
-            }
-            
-            return await _authService.GenerateTokenAsync(user.UserName, user.Role);
         }
 
         public async Task<bool> ValidateUserAsync(string userName, string password)
@@ -53,8 +31,9 @@ namespace ObserverNetLite.Application.Services
             var user = (await _userRepository.FindAsync(u => u.UserName == userName)).FirstOrDefault();
             if (user == null)
                 return false;
-                
-            return user.Password == EncryptionHelper.ComputeMd5Hash(password);
+
+            // Compare password - in a real app, hash the password before comparing
+            return user.Password == password;
         }
 
         public async Task<UserDto?> GetUserByIdAsync(Guid userId)
@@ -83,7 +62,7 @@ namespace ObserverNetLite.Application.Services
             return _mapper.Map<IEnumerable<UserDto>>(users);
         }
         
-        public async Task<UserDto> CreateUserAsync(UserDto createUserDto)
+        public async Task<UserDto> CreateUserAsync(CreateUserDto createUserDto)
         {
             var user = _mapper.Map<User>(createUserDto);
             var createdUser = await _userRepository.AddAsync(user);

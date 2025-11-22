@@ -28,9 +28,9 @@ namespace ObserverNetLite.API.Endpoints
             .WithDescription("Get user by ID");
 
             // Create user
-            group.MapPost("/", async (UserDto userDto, IUserService userService) =>
+            group.MapPost("/", async (CreateUserDto createUserDto, IUserService userService) =>
             {
-                var user = await userService.CreateUserAsync(userDto);
+                var user = await userService.CreateUserAsync(createUserDto);
                 return Results.Created($"/api/users/{user.Id}", user);
             })
             .WithName("CreateUser")

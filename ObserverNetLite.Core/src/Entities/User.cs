@@ -1,4 +1,4 @@
-namespace ObserverNetLite.Entities;
+namespace ObserverNetLite.Core.Entities;
 
 public class User
 {
