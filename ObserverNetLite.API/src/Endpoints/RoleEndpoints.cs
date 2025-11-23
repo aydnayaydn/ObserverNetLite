@@ -134,12 +134,17 @@ public static class RoleEndpoints
         .WithName("DeleteRole")
         .WithOpenApi();
 
-        group.MapPost("/assign-permissions", async (
+        group.MapPost("/{id:guid}/assign-permissions", async (
+            [FromRoute] Guid id,
             [FromBody] AssignPermissionsDto assignPermissionsDto,
             [FromServices] IRoleService roleService) =>
         {
             try
             {
+                // Ensure the ID from route matches the DTO
+                if (id != assignPermissionsDto.RoleId)
+                    return Results.BadRequest(new { message = "Role ID uyuşmazlığı." });
+
                 var result = await roleService.AssignPermissionsToRoleAsync(assignPermissionsDto);
                 if (!result)
                     return Results.BadRequest(new { message = "İzinler atanamadı." });

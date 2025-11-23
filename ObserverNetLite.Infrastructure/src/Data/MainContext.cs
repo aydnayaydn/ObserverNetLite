@@ -28,5 +28,8 @@ public class ObserverNetLiteDbContext(DbContextOptions<ObserverNetLiteDbContext>
         
         // Configure User entity
         UserMapping.OnModelCreating(modelBuilder.Entity<User>());
+        
+        // Seed initial data
+        SeedData.Seed(modelBuilder);
     }
 }

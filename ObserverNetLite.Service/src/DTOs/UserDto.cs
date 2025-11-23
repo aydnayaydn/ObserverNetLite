@@ -11,4 +11,6 @@ public class UserDto
     public List<string> RoleNames { get; set; } = new();
 
     public string? Email { get; set; }
+    
+    public List<PermissionDto> Permissions { get; set; } = new();
 }

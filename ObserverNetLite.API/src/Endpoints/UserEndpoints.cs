@@ -37,8 +37,15 @@ namespace ObserverNetLite.API.Endpoints
             .WithDescription("Create a new user");
 
             // Update user
-            group.MapPut("/{id}", async (UserDto userDto, IUserService userService) =>
+            group.MapPut("/{id}", async (Guid id, UpdateUserRequest updateUserDto, IUserService userService) =>
             {
+                var userDto = new UserDto
+                {
+                    Id = id,
+                    UserName = updateUserDto.UserName ?? string.Empty,
+                    Email = updateUserDto.Email,
+                    RoleIds = updateUserDto.RoleIds ?? new List<Guid>()
+                };
                 var success = await userService.UpdateUserAsync(userDto);
                 return success == null ? Results.NotFound() : Results.Ok(success);
             })

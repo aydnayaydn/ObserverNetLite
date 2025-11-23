@@ -1,5 +1,6 @@
-using System.Net;
-using System.Net.Mail;
+using MailKit.Net.Smtp;
+using MailKit.Security;
+using MimeKit;
 
 namespace ObserverNetLite.Core.Helpers;
 
@@ -35,28 +36,75 @@ public class EmailHelper
     {
         try
         {
-            using var smtpClient = new SmtpClient(_smtpHost, _smtpPort)
+            Console.WriteLine($"[EMAIL DEBUG] Attempting to send email to: {toEmail}");
+            Console.WriteLine($"[EMAIL DEBUG] SMTP Server: {_smtpHost}:{_smtpPort}");
+            Console.WriteLine($"[EMAIL DEBUG] SSL Enabled: {_enableSsl}");
+            Console.WriteLine($"[EMAIL DEBUG] Username: {_smtpUsername}");
+            Console.WriteLine($"[EMAIL DEBUG] From: {_fromEmail}");
+
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(_fromName, _fromEmail));
+            message.To.Add(new MailboxAddress("", toEmail));
+            message.Subject = subject;
+
+            var bodyBuilder = new BodyBuilder();
+            if (isHtml)
             {
-                EnableSsl = _enableSsl,
-                Credentials = new NetworkCredential(_smtpUsername, _smtpPassword)
-            };
-
-            using var mailMessage = new MailMessage
+                bodyBuilder.HtmlBody = body;
+            }
+            else
             {
-                From = new MailAddress(_fromEmail, _fromName),
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = isHtml
-            };
+                bodyBuilder.TextBody = body;
+            }
+            message.Body = bodyBuilder.ToMessageBody();
 
-            mailMessage.To.Add(toEmail);
-
-            await smtpClient.SendMailAsync(mailMessage);
+            using var smtpClient = new SmtpClient();
+            
+            Console.WriteLine($"[EMAIL DEBUG] Connecting to SMTP server...");
+            
+            // Gmail için doğru SSL ayarları
+            SecureSocketOptions secureOptions;
+            if (_smtpPort == 465)
+            {
+                // Port 465: SSL/TLS (implicit)
+                secureOptions = SecureSocketOptions.SslOnConnect;
+            }
+            else if (_smtpPort == 587)
+            {
+                // Port 587: STARTTLS (explicit)
+                secureOptions = SecureSocketOptions.StartTls;
+            }
+            else
+            {
+                // Diğer portlar için SSL ayarına göre
+                secureOptions = _enableSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.None;
+            }
+            
+            Console.WriteLine($"[EMAIL DEBUG] Using secure option: {secureOptions}");
+            await smtpClient.ConnectAsync(_smtpHost, _smtpPort, secureOptions);
+            
+            Console.WriteLine($"[EMAIL DEBUG] Authenticating...");
+            await smtpClient.AuthenticateAsync(_smtpUsername, _smtpPassword);
+            
+            Console.WriteLine($"[EMAIL DEBUG] Sending email...");
+            await smtpClient.SendAsync(message);
+            
+            Console.WriteLine($"[EMAIL DEBUG] Disconnecting...");
+            await smtpClient.DisconnectAsync(true);
+            
+            Console.WriteLine($"[EMAIL DEBUG] Email sent successfully!");
         }
         catch (Exception ex)
         {
-            // Log the exception (you can inject ILogger if needed)
-            throw new InvalidOperationException($"Email gönderme hatası: {ex.Message}", ex);
+            Console.WriteLine($"[EMAIL ERROR] Exception:");
+            Console.WriteLine($"[EMAIL ERROR] Type: {ex.GetType().Name}");
+            Console.WriteLine($"[EMAIL ERROR] Message: {ex.Message}");
+            Console.WriteLine($"[EMAIL ERROR] InnerException: {ex.InnerException?.Message}");
+            Console.WriteLine($"[EMAIL ERROR] StackTrace: {ex.StackTrace}");
+            
+            throw new InvalidOperationException(
+                $"Email gönderme hatası: {ex.Message} | Server: {_smtpHost}:{_smtpPort} | SSL: {_enableSsl}", 
+                ex);
         }
     }
 

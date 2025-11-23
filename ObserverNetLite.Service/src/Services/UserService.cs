@@ -17,6 +17,8 @@ namespace ObserverNetLite.Service.Services
         private readonly IRepository<User> _userRepository;
         private readonly IRepository<UserRole> _userRoleRepository;
         private readonly IRepository<Role> _roleRepository;
+        private readonly IRepository<RolePermission> _rolePermissionRepository;
+        private readonly IRepository<Permission> _permissionRepository;
         private readonly IMapper _mapper;
         private readonly EmailHelper _emailHelper;
         private readonly PasswordResetSettings _resetSettings;
@@ -25,6 +27,8 @@ namespace ObserverNetLite.Service.Services
             IRepository<User> userRepository,
             IRepository<UserRole> userRoleRepository,
             IRepository<Role> roleRepository,
+            IRepository<RolePermission> rolePermissionRepository,
+            IRepository<Permission> permissionRepository,
             IMapper mapper,
             EmailHelper emailHelper,
             PasswordResetSettings resetSettings)
@@ -32,6 +36,8 @@ namespace ObserverNetLite.Service.Services
             _userRepository = userRepository;
             _userRoleRepository = userRoleRepository;
             _roleRepository = roleRepository;
+            _rolePermissionRepository = rolePermissionRepository;
+            _permissionRepository = permissionRepository;
             _mapper = mapper;
             _emailHelper = emailHelper;
             _resetSettings = resetSettings;
@@ -69,6 +75,18 @@ namespace ObserverNetLite.Service.Services
             userDto.RoleIds = roles.Select(r => r.Id).ToList();
             userDto.RoleNames = roles.Select(r => r.Name).ToList();
             
+            // Load permissions from all user roles
+            var permissions = new List<PermissionDto>();
+            foreach (var roleId in roleIds)
+            {
+                var rolePermissions = await _rolePermissionRepository.FindAsync(rp => rp.RoleId == roleId);
+                var permissionIds = rolePermissions.Select(rp => rp.PermissionId).ToList();
+                var allPermissions = await _permissionRepository.GetAllAsync();
+                var rolePerms = allPermissions.Where(p => permissionIds.Contains(p.Id)).ToList();
+                permissions.AddRange(_mapper.Map<List<PermissionDto>>(rolePerms));
+            }
+            userDto.Permissions = permissions.DistinctBy(p => p.Id).ToList();
+            
             return userDto;
         }
 
@@ -90,6 +108,18 @@ namespace ObserverNetLite.Service.Services
             userDto.RoleIds = roles.Select(r => r.Id).ToList();
             userDto.RoleNames = roles.Select(r => r.Name).ToList();
             
+            // Load permissions from all user roles
+            var permissions = new List<PermissionDto>();
+            foreach (var roleId in roleIds)
+            {
+                var rolePermissions = await _rolePermissionRepository.FindAsync(rp => rp.RoleId == roleId);
+                var permissionIds = rolePermissions.Select(rp => rp.PermissionId).ToList();
+                var allPermissions = await _permissionRepository.GetAllAsync();
+                var rolePerms = allPermissions.Where(p => permissionIds.Contains(p.Id)).ToList();
+                permissions.AddRange(_mapper.Map<List<PermissionDto>>(rolePerms));
+            }
+            userDto.Permissions = permissions.DistinctBy(p => p.Id).ToList();
+            
             return userDto;
         }
 
@@ -108,6 +138,19 @@ namespace ObserverNetLite.Service.Services
                 var userDto = _mapper.Map<UserDto>(user);
                 userDto.RoleIds = roles.Select(r => r.Id).ToList();
                 userDto.RoleNames = roles.Select(r => r.Name).ToList();
+                
+                // Load permissions from all user roles
+                var permissions = new List<PermissionDto>();
+                foreach (var roleId in roleIds)
+                {
+                    var rolePermissions = await _rolePermissionRepository.FindAsync(rp => rp.RoleId == roleId);
+                    var permissionIds = rolePermissions.Select(rp => rp.PermissionId).ToList();
+                    var allPermissions = await _permissionRepository.GetAllAsync();
+                    var rolePerms = allPermissions.Where(p => permissionIds.Contains(p.Id)).ToList();
+                    permissions.AddRange(_mapper.Map<List<PermissionDto>>(rolePerms));
+                }
+                userDto.Permissions = permissions.DistinctBy(p => p.Id).ToList();
+                
                 userDtos.Add(userDto);
             }
             
@@ -226,7 +269,17 @@ namespace ObserverNetLite.Service.Services
             await _userRepository.SaveChangesAsync();
 
             // Send password reset email
-            await _emailHelper.SendPasswordResetEmailAsync(user.Email!, user.UserName, resetToken, _resetSettings.ResetUrl);
+            try
+            {
+                await _emailHelper.SendPasswordResetEmailAsync(user.Email!, user.UserName, resetToken, _resetSettings.ResetUrl);
+            }
+            catch (Exception)
+            {
+                // Email sending failed, but we still return success
+                // In production, you should log this error
+                // For development, print the token to console
+                Console.WriteLine($"[DEV] Password Reset Token for {user.UserName}: {resetToken}");
+            }
 
             return true;
         }
