@@ -346,7 +346,7 @@ if ($createdRoleId) {
         $headers = @{
             Authorization = "Bearer $adminToken"
         }
-        $response = Invoke-WebRequest -Uri "$baseUrl/api/roles/assign-permissions" -Method POST -Body $assignPerms -ContentType "application/json" -Headers $headers
+        $response = Invoke-WebRequest -Uri "$baseUrl/api/roles/$createdRoleId/assign-permissions" -Method POST -Body $assignPerms -ContentType "application/json" -Headers $headers
         Write-Host "   OK Status: $($response.StatusCode)" -ForegroundColor Green
         Write-Host "   OK Permissions atandi" -ForegroundColor Green
     }
