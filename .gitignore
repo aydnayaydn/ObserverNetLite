@@ -92,5 +92,8 @@ _ReSharper*/
 # Cipher Keys
 cipher.txt
 
+# Email Password
+mailpassword.txt
+
 # Git
 .gitconfig

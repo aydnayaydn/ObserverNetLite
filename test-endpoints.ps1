@@ -192,6 +192,46 @@ else {
 }
 Write-Host ""
 
+# Test 12: Reset Password
+Write-Host "12. Reset Password (admin kullanicisi)..." -ForegroundColor Yellow
+$resetPasswordBody = @{
+    userName = "admin"
+    oldPassword = "admin123"
+    newPassword = "newadmin123"
+} | ConvertTo-Json
+
+try {
+    $response = Invoke-WebRequest -Uri "$baseUrl/api/auth/reset-password" -Method POST -Body $resetPasswordBody -ContentType "application/json"
+    $result = $response.Content | ConvertFrom-Json
+    Write-Host "   OK Status: $($response.StatusCode)" -ForegroundColor Green
+    Write-Host "   OK Message: $($result.message)" -ForegroundColor Green
+    
+    # Test yeni şifre ile login
+    Write-Host "   Testing login with new password..." -ForegroundColor Cyan
+    $newLoginBody = @{
+        userName = "admin"
+        password = "newadmin123"
+    } | ConvertTo-Json
+    
+    $loginResponse = Invoke-WebRequest -Uri "$baseUrl/api/auth/login" -Method POST -Body $newLoginBody -ContentType "application/json"
+    Write-Host "   OK Yeni sifre ile login basarili" -ForegroundColor Green
+    
+    # Şifreyi eski haline döndür
+    Write-Host "   Reverting password back..." -ForegroundColor Cyan
+    $revertPasswordBody = @{
+        userName = "admin"
+        oldPassword = "newadmin123"
+        newPassword = "admin123"
+    } | ConvertTo-Json
+    
+    Invoke-WebRequest -Uri "$baseUrl/api/auth/reset-password" -Method POST -Body $revertPasswordBody -ContentType "application/json" | Out-Null
+    Write-Host "   OK Sifre eski haline donduruldu" -ForegroundColor Green
+}
+catch {
+    Write-Host "   FAIL Error: $($_.Exception.Message)" -ForegroundColor Red
+}
+Write-Host ""
+
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "Tum testler tamamlandi!" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan

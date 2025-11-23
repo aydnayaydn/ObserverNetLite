@@ -20,6 +20,14 @@ public class UserMapping
             .HasMaxLength(50)
             .IsRequired();
 
+        _ = builder.Property(u => u.Email)
+            .HasMaxLength(255);
+
+        _ = builder.Property(u => u.PasswordResetToken)
+            .HasMaxLength(500);
+
+        _ = builder.Property(u => u.PasswordResetTokenExpiry);
+
         SeedData(builder);
     }
 
@@ -31,14 +39,16 @@ public class UserMapping
                 Id = Guid.Parse("8e445865-a24d-4543-a6c6-9443d048cdb9"),
                 UserName = "admin",
                 Password = EncryptionHelper.ComputeMd5Hash("admin123"), // 0192023a7bbd73250516f069df18b500
-                Role = "admin"
+                Role = "admin",
+                Email = "admin@observernetlite.com"
             },
             new User
             {
                 Id = Guid.Parse("9e225865-a24d-4543-a6c6-9443d048cdb9"),
                 UserName = "user",
                 Password = EncryptionHelper.ComputeMd5Hash("user123"), // e10adc3949ba59abbe56e057f20f883e
-                Role = "user"
+                Role = "user",
+                Email = "user@observernetlite.com"
             }
         );
     }

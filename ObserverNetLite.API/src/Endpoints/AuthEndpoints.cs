@@ -60,6 +60,72 @@ namespace ObserverNetLite.API.Endpoints
                 .WithMetadata(new RequireRoleAttribute("user", "admin"))
                 .WithName("TestUser")
                 .WithOpenApi();
+
+            group.MapPost("/reset-password", async (
+                [FromBody] ResetPasswordDto resetPasswordDto,
+                [FromServices] IUserService userService) =>
+            {
+                try
+                {
+                    var result = await userService.ResetPasswordAsync(resetPasswordDto);
+                    if (!result)
+                    {
+                        return Results.BadRequest(new { message = "Kullanıcı adı veya eski şifre hatalı." });
+                    }
+
+                    return Results.Ok(new { message = "Şifre başarıyla değiştirildi." });
+                }
+                catch (Exception ex)
+                {
+                    return Results.Problem(ex.Message);
+                }
+            })
+            .WithName("ResetPassword")
+            .WithOpenApi();
+
+            group.MapPost("/forgot-password", async (
+                [FromBody] ForgotPasswordDto forgotPasswordDto,
+                [FromServices] IUserService userService) =>
+            {
+                try
+                {
+                    var result = await userService.ForgotPasswordAsync(forgotPasswordDto);
+                    if (!result)
+                    {
+                        return Results.BadRequest(new { message = "Email adresi bulunamadı." });
+                    }
+
+                    return Results.Ok(new { message = "Şifre sıfırlama bağlantısı email adresinize gönderildi." });
+                }
+                catch (Exception ex)
+                {
+                    return Results.Problem(ex.Message);
+                }
+            })
+            .WithName("ForgotPassword")
+            .WithOpenApi();
+
+            group.MapPost("/reset-password-with-token", async (
+                [FromBody] ResetPasswordWithTokenDto resetDto,
+                [FromServices] IUserService userService) =>
+            {
+                try
+                {
+                    var result = await userService.ResetPasswordWithTokenAsync(resetDto);
+                    if (!result)
+                    {
+                        return Results.BadRequest(new { message = "Geçersiz veya süresi dolmuş token." });
+                    }
+
+                    return Results.Ok(new { message = "Şifreniz başarıyla sıfırlandı." });
+                }
+                catch (Exception ex)
+                {
+                    return Results.Problem(ex.Message);
+                }
+            })
+            .WithName("ResetPasswordWithToken")
+            .WithOpenApi();
         }
     }
 }

@@ -10,4 +10,9 @@ public class User
 
     public required string Role { get; set; } // admin, stackholder
 
+    public string? Email { get; set; }
+
+    public string? PasswordResetToken { get; set; }
+
+    public DateTime? PasswordResetTokenExpiry { get; set; }
 }

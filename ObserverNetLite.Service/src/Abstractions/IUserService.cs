@@ -17,4 +17,10 @@ public interface IUserService : IService
     Task<UserDto?> UpdateUserAsync(UserDto userDto);
 
     Task<bool> DeleteUserAsync(Guid userId);
+
+    Task<bool> ResetPasswordAsync(ResetPasswordDto resetPasswordDto);
+
+    Task<bool> ForgotPasswordAsync(ForgotPasswordDto forgotPasswordDto);
+
+    Task<bool> ResetPasswordWithTokenAsync(ResetPasswordWithTokenDto resetDto);
 }

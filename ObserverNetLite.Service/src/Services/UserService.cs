@@ -1,6 +1,7 @@
 using AutoMapper;
 using ObserverNetLite.Service.Abstractions;
 using ObserverNetLite.Service.DTOs;
+using ObserverNetLite.Service.Settings;
 using ObserverNetLite.Core.Abstractions;
 using ObserverNetLite.Core.Entities;
 using ObserverNetLite.Core.Helpers;
@@ -15,13 +16,19 @@ namespace ObserverNetLite.Service.Services
     {
         private readonly IRepository<User> _userRepository;
         private readonly IMapper _mapper;
+        private readonly EmailHelper _emailHelper;
+        private readonly PasswordResetSettings _resetSettings;
 
         public UserService(
             IRepository<User> userRepository, 
-            IMapper mapper)
+            IMapper mapper,
+            EmailHelper emailHelper,
+            PasswordResetSettings resetSettings)
         {
             _userRepository = userRepository;
             _mapper = mapper;
+            _emailHelper = emailHelper;
+            _resetSettings = resetSettings;
         }
 
         public async Task<bool> ValidateUserAsync(string userName, string password)
@@ -98,6 +105,78 @@ namespace ObserverNetLite.Service.Services
             
             await _userRepository.DeleteAsync(user);
             await _userRepository.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> ResetPasswordAsync(ResetPasswordDto resetPasswordDto)
+        {
+            // Find user by username
+            var user = (await _userRepository.FindAsync(u => u.UserName == resetPasswordDto.UserName)).FirstOrDefault();
+            if (user == null)
+            {
+                return false;
+            }
+
+            // Validate old password
+            var hashedOldPassword = EncryptionHelper.ComputeMd5Hash(resetPasswordDto.OldPassword);
+            if (user.Password != hashedOldPassword)
+            {
+                return false;
+            }
+
+            // Update with new hashed password
+            user.Password = EncryptionHelper.ComputeMd5Hash(resetPasswordDto.NewPassword);
+            await _userRepository.UpdateAsync(user);
+            await _userRepository.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> ForgotPasswordAsync(ForgotPasswordDto forgotPasswordDto)
+        {
+            // Find user by email
+            var user = (await _userRepository.FindAsync(u => u.Email == forgotPasswordDto.Email)).FirstOrDefault();
+            if (user == null)
+            {
+                return false; // User not found
+            }
+
+            // Generate password reset token
+            var resetToken = Guid.NewGuid().ToString();
+            user.PasswordResetToken = resetToken;
+            user.PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1); // Token valid for 1 hour
+
+            await _userRepository.UpdateAsync(user);
+            await _userRepository.SaveChangesAsync();
+
+            // Send password reset email
+            await _emailHelper.SendPasswordResetEmailAsync(user.Email!, user.UserName, resetToken, _resetSettings.ResetUrl);
+
+            return true;
+        }
+
+        public async Task<bool> ResetPasswordWithTokenAsync(ResetPasswordWithTokenDto resetDto)
+        {
+            // Find user by reset token
+            var user = (await _userRepository.FindAsync(u => u.PasswordResetToken == resetDto.Token)).FirstOrDefault();
+            if (user == null)
+            {
+                return false; // Invalid token
+            }
+
+            // Check if token has expired
+            if (user.PasswordResetTokenExpiry == null || user.PasswordResetTokenExpiry < DateTime.UtcNow)
+            {
+                return false; // Token expired
+            }
+
+            // Update password and clear reset token
+            user.Password = EncryptionHelper.ComputeMd5Hash(resetDto.NewPassword);
+            user.PasswordResetToken = null;
+            user.PasswordResetTokenExpiry = null;
+
+            await _userRepository.UpdateAsync(user);
+            await _userRepository.SaveChangesAsync();
+
             return true;
         }
     }
