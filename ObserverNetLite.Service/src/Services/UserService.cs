@@ -3,6 +3,7 @@ using ObserverNetLite.Service.Abstractions;
 using ObserverNetLite.Service.DTOs;
 using ObserverNetLite.Core.Abstractions;
 using ObserverNetLite.Core.Entities;
+using ObserverNetLite.Core.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,8 +33,9 @@ namespace ObserverNetLite.Service.Services
             if (user == null)
                 return false;
 
-            // Compare password - in a real app, hash the password before comparing
-            return user.Password == password;
+            // Hash the input password and compare with stored hash
+            var hashedPassword = EncryptionHelper.ComputeMd5Hash(password);
+            return user.Password == hashedPassword;
         }
 
         public async Task<UserDto?> GetUserByIdAsync(Guid userId)
@@ -65,6 +67,8 @@ namespace ObserverNetLite.Service.Services
         public async Task<UserDto> CreateUserAsync(CreateUserDto createUserDto)
         {
             var user = _mapper.Map<User>(createUserDto);
+            // Hash the password before saving
+            user.Password = EncryptionHelper.ComputeMd5Hash(user.Password);
             var createdUser = await _userRepository.AddAsync(user);
             await _userRepository.SaveChangesAsync();
             return _mapper.Map<UserDto>(createdUser);

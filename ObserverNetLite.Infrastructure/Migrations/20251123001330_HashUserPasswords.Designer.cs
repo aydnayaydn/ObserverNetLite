@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ObserverNetLite.Data;
@@ -11,9 +12,11 @@ using ObserverNetLite.Data;
 namespace ObserverNetLite.Infrastructure.Migrations
 {
     [DbContext(typeof(ObserverNetLiteDbContext))]
-    partial class ObserverNetLiteDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251123001330_HashUserPasswords")]
+    partial class HashUserPasswords
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
