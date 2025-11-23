@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObserverNetLite.Core", "ObserverNetLite.Core\ObserverNetLite.Core.csproj", "{F2C87138-8DF1-449A-9B95-14293E76D1EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObserverNetLite.Application", "ObserverNetLite.Application\ObserverNetLite.Application.csproj", "{46B286C6-9EF7-42D0-B940-0903663B3EBD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObserverNetLite.Service", "ObserverNetLite.Service\ObserverNetLite.Service.csproj", "{46B286C6-9EF7-42D0-B940-0903663B3EBD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObserverNetLite.API", "ObserverNetLite.API\ObserverNetLite.API.csproj", "{B0D8DA5D-7B71-426F-A583-70EA91B0612F}"
 EndProject

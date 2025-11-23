@@ -1,6 +1,6 @@
 using AutoMapper;
-using ObserverNetLite.Application.Abstractions;
-using ObserverNetLite.Application.DTOs;
+using ObserverNetLite.Service.Abstractions;
+using ObserverNetLite.Service.DTOs;
 using ObserverNetLite.Core.Abstractions;
 using ObserverNetLite.Core.Entities;
 using System;
@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ObserverNetLite.Application.Services
+namespace ObserverNetLite.Service.Services
 {
     public class UserService : IUserService
     {

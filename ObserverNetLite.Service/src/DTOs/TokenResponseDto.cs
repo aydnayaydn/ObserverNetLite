@@ -1,6 +1,6 @@
 using System;
 
-namespace ObserverNetLite.Application.DTOs
+namespace ObserverNetLite.Service.DTOs
 {
     public class TokenResponseDto
     {

@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
-using ObserverNetLite.Application.Abstractions;
-using ObserverNetLite.Application.Services;
+using ObserverNetLite.Service.Abstractions;
+using ObserverNetLite.Service.Services;
 
-namespace ObserverNetLite.Application;
+namespace ObserverNetLite.Service;
 
 /// <summary>
 /// Extension methods for setting up ObserverNetLite application services in an IServiceCollection.

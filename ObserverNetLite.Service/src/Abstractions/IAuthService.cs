@@ -1,7 +1,7 @@
-using ObserverNetLite.Application.DTOs;
+using ObserverNetLite.Service.DTOs;
 using System.Threading.Tasks;
 
-namespace ObserverNetLite.Application.Abstractions
+namespace ObserverNetLite.Service.Abstractions
 {
     public interface IAuthService : IService
     {

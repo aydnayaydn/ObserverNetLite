@@ -1,5 +1,5 @@
-using ObserverNetLite.Application.Abstractions;
-using ObserverNetLite.Application.DTOs;
+using ObserverNetLite.Service.Abstractions;
+using ObserverNetLite.Service.DTOs;
 
 namespace ObserverNetLite.API.Endpoints
 {

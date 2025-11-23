@@ -6,13 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using ObserverNetLite.Application.Abstractions;
-using ObserverNetLite.Application.DTOs;
-using ObserverNetLite.Application.Settings;
+using ObserverNetLite.Service.Abstractions;
+using ObserverNetLite.Service.DTOs;
+using ObserverNetLite.Service.Settings;
 using ObserverNetLite.Core.Abstractions;
 using ObserverNetLite.Core.Entities;
 
-namespace ObserverNetLite.Application.Services
+namespace ObserverNetLite.Service.Services
 {
     public class AuthService : IAuthService
     {

@@ -1,4 +1,4 @@
-namespace ObserverNetLite.Application.Settings
+namespace ObserverNetLite.Service.Settings
 {
     public class JwtSettings
     {

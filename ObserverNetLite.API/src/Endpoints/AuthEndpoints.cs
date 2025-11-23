@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ObserverNetLite.API.Middlewares;
-using ObserverNetLite.Application.Abstractions;
-using ObserverNetLite.Application.DTOs;
+using ObserverNetLite.Service.Abstractions;
+using ObserverNetLite.Service.DTOs;
 using System;
 
 namespace ObserverNetLite.API.Endpoints

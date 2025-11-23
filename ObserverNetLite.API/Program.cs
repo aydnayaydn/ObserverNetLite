@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using ObserverNetLite.API.Endpoints;
 using ObserverNetLite.API.Extensions;
-using ObserverNetLite.Application;
-using ObserverNetLite.Application.Settings;
+using ObserverNetLite.Service;
+using ObserverNetLite.Service.Settings;
 using ObserverNetLite.Infrastructure;
 using System.Text;
 

@@ -18,7 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ObserverNetLite.Core\ObserverNetLite.Core.csproj" />
-    <ProjectReference Include="..\ObserverNetLite.Application\ObserverNetLite.Application.csproj" />
+    <ProjectReference Include="..\ObserverNetLite.Service\ObserverNetLite.Service.csproj" />
   </ItemGroup>
 
 </Project>

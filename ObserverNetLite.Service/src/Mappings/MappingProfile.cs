@@ -1,8 +1,8 @@
 using AutoMapper;
-using ObserverNetLite.Application.DTOs;
+using ObserverNetLite.Service.DTOs;
 using ObserverNetLite.Core.Entities;
 
-namespace ObserverNetLite.Application.Mappings;
+namespace ObserverNetLite.Service.Mappings;
 
 public class MappingProfile : Profile
 {

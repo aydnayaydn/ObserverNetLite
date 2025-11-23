@@ -1,6 +1,6 @@
-using ObserverNetLite.Application.DTOs;
+using ObserverNetLite.Service.DTOs;
 
-namespace ObserverNetLite.Application.Abstractions;
+namespace ObserverNetLite.Service.Abstractions;
 
 public interface IUserService : IService
 {
