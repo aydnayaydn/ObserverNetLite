@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ObserverNetLite.Data;
@@ -11,9 +12,11 @@ using ObserverNetLite.Data;
 namespace ObserverNetLite.Infrastructure.Migrations
 {
     [DbContext(typeof(ObserverNetLiteDbContext))]
-    partial class ObserverNetLiteDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251123010452_AddRoleAndPermissionManagement")]
+    partial class AddRoleAndPermissionManagement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -470,12 +473,17 @@ namespace ObserverNetLite.Infrastructure.Migrations
                     b.Property<DateTime?>("PasswordResetTokenExpiry")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
 
                     b.ToTable("Users");
 
@@ -485,6 +493,7 @@ namespace ObserverNetLite.Infrastructure.Migrations
                             Id = new Guid("8e445865-a24d-4543-a6c6-9443d048cdb9"),
                             Email = "admin@observernetlite.com",
                             Password = "0192023a7bbd73250516f069df18b500",
+                            RoleId = new Guid("11111111-1111-1111-1111-111111111111"),
                             UserName = "admin"
                         },
                         new
@@ -492,43 +501,8 @@ namespace ObserverNetLite.Infrastructure.Migrations
                             Id = new Guid("9e225865-a24d-4543-a6c6-9443d048cdb9"),
                             Email = "guest@observernetlite.com",
                             Password = "fcf41657f02f88137a1bcf068a32c0a3",
-                            UserName = "guest"
-                        });
-                });
-
-            modelBuilder.Entity("ObserverNetLite.Core.Entities.UserRole", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.HasIndex("UserId", "RoleId")
-                        .IsUnique();
-
-                    b.ToTable("UserRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("70000001-0000-0000-0000-000000000001"),
-                            RoleId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            UserId = new Guid("8e445865-a24d-4543-a6c6-9443d048cdb9")
-                        },
-                        new
-                        {
-                            Id = new Guid("70000002-0000-0000-0000-000000000002"),
                             RoleId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            UserId = new Guid("9e225865-a24d-4543-a6c6-9443d048cdb9")
+                            UserName = "guest"
                         });
                 });
 
@@ -580,23 +554,15 @@ namespace ObserverNetLite.Infrastructure.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("ObserverNetLite.Core.Entities.UserRole", b =>
+            modelBuilder.Entity("ObserverNetLite.Core.Entities.User", b =>
                 {
                     b.HasOne("ObserverNetLite.Core.Entities.Role", "Role")
-                        .WithMany("UserRoles")
+                        .WithMany()
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ObserverNetLite.Core.Entities.User", "User")
-                        .WithMany("UserRoles")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Role");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ObserverNetLite.Core.Entities.Menu", b =>
@@ -616,13 +582,6 @@ namespace ObserverNetLite.Infrastructure.Migrations
             modelBuilder.Entity("ObserverNetLite.Core.Entities.Role", b =>
                 {
                     b.Navigation("RolePermissions");
-
-                    b.Navigation("UserRoles");
-                });
-
-            modelBuilder.Entity("ObserverNetLite.Core.Entities.User", b =>
-                {
-                    b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618
         }

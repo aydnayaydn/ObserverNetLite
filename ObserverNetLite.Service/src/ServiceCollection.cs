@@ -72,6 +72,9 @@ public static class ServiceCollectionExtensions
         // Add services
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IRoleService, RoleService>();
+        services.AddScoped<IPermissionService, PermissionService>();
+        services.AddScoped<IMenuService, MenuService>();
 
         return services;
     }

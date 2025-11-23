@@ -35,8 +35,9 @@ namespace ObserverNetLite.API.Endpoints
                         return Results.Unauthorized();
                     }
 
-                    // Generate token
-                    var token = await authService.GenerateTokenAsync(user.UserName, user.Role);
+                    // Generate token with primary role (first role)
+                    var primaryRole = user.RoleNames.FirstOrDefault() ?? "user";
+                    var token = await authService.GenerateTokenAsync(user.UserName, primaryRole);
                     return Results.Ok(token);
                 }
                 catch (UnauthorizedAccessException)

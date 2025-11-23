@@ -15,17 +15,23 @@ namespace ObserverNetLite.Service.Services
     public class UserService : IUserService
     {
         private readonly IRepository<User> _userRepository;
+        private readonly IRepository<UserRole> _userRoleRepository;
+        private readonly IRepository<Role> _roleRepository;
         private readonly IMapper _mapper;
         private readonly EmailHelper _emailHelper;
         private readonly PasswordResetSettings _resetSettings;
 
         public UserService(
-            IRepository<User> userRepository, 
+            IRepository<User> userRepository,
+            IRepository<UserRole> userRoleRepository,
+            IRepository<Role> roleRepository,
             IMapper mapper,
             EmailHelper emailHelper,
             PasswordResetSettings resetSettings)
         {
             _userRepository = userRepository;
+            _userRoleRepository = userRoleRepository;
+            _roleRepository = roleRepository;
             _mapper = mapper;
             _emailHelper = emailHelper;
             _resetSettings = resetSettings;
@@ -52,7 +58,18 @@ namespace ObserverNetLite.Service.Services
             {
                 return null;
             }
-            return _mapper.Map<UserDto>(user);
+            
+            // Load user roles
+            var userRoles = await _userRoleRepository.FindAsync(ur => ur.UserId == userId);
+            var roleIds = userRoles.Select(ur => ur.RoleId).ToList();
+            var allRoles = await _roleRepository.GetAllAsync();
+            var roles = allRoles.Where(r => roleIds.Contains(r.Id)).ToList();
+            
+            var userDto = _mapper.Map<UserDto>(user);
+            userDto.RoleIds = roles.Select(r => r.Id).ToList();
+            userDto.RoleNames = roles.Select(r => r.Name).ToList();
+            
+            return userDto;
         }
 
         public async Task<UserDto?> GetUserByUserNameAsync(string userName)
@@ -62,13 +79,39 @@ namespace ObserverNetLite.Service.Services
             {
                 return null;
             }
-            return _mapper.Map<UserDto>(user);
+            
+            // Load user roles
+            var userRoles = await _userRoleRepository.FindAsync(ur => ur.UserId == user.Id);
+            var roleIds = userRoles.Select(ur => ur.RoleId).ToList();
+            var allRoles = await _roleRepository.GetAllAsync();
+            var roles = allRoles.Where(r => roleIds.Contains(r.Id)).ToList();
+            
+            var userDto = _mapper.Map<UserDto>(user);
+            userDto.RoleIds = roles.Select(r => r.Id).ToList();
+            userDto.RoleNames = roles.Select(r => r.Name).ToList();
+            
+            return userDto;
         }
 
         public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
         {
-            var users = await _userRepository.GetAllAsync();
-            return _mapper.Map<IEnumerable<UserDto>>(users);
+            var users = (await _userRepository.GetAllAsync()).ToList();
+            var userDtos = new List<UserDto>();
+            
+            foreach (var user in users)
+            {
+                var userRoles = await _userRoleRepository.FindAsync(ur => ur.UserId == user.Id);
+                var roleIds = userRoles.Select(ur => ur.RoleId).ToList();
+                var allRoles = await _roleRepository.GetAllAsync();
+                var roles = allRoles.Where(r => roleIds.Contains(r.Id)).ToList();
+                
+                var userDto = _mapper.Map<UserDto>(user);
+                userDto.RoleIds = roles.Select(r => r.Id).ToList();
+                userDto.RoleNames = roles.Select(r => r.Name).ToList();
+                userDtos.Add(userDto);
+            }
+            
+            return userDtos;
         }
         
         public async Task<UserDto> CreateUserAsync(CreateUserDto createUserDto)
@@ -78,7 +121,20 @@ namespace ObserverNetLite.Service.Services
             user.Password = EncryptionHelper.ComputeMd5Hash(user.Password);
             var createdUser = await _userRepository.AddAsync(user);
             await _userRepository.SaveChangesAsync();
-            return _mapper.Map<UserDto>(createdUser);
+            
+            // Add user roles
+            foreach (var roleId in createUserDto.RoleIds)
+            {
+                var userRole = new UserRole
+                {
+                    UserId = createdUser.Id,
+                    RoleId = roleId
+                };
+                await _userRoleRepository.AddAsync(userRole);
+            }
+            await _userRoleRepository.SaveChangesAsync();
+            
+            return await GetUserByIdAsync(createdUser.Id) ?? _mapper.Map<UserDto>(createdUser);
         }
 
         public async Task<UserDto?> UpdateUserAsync(UserDto updateUserDto)
@@ -89,10 +145,31 @@ namespace ObserverNetLite.Service.Services
                 return null;
             }
             
-            _mapper.Map(updateUserDto, existingUser);
+            existingUser.UserName = updateUserDto.UserName;
+            existingUser.Email = updateUserDto.Email;
             await _userRepository.UpdateAsync(existingUser);
+            
+            // Update user roles - remove old ones and add new ones
+            var existingUserRoles = await _userRoleRepository.FindAsync(ur => ur.UserId == updateUserDto.Id);
+            foreach (var userRole in existingUserRoles)
+            {
+                await _userRoleRepository.DeleteAsync(userRole);
+            }
+            
+            foreach (var roleId in updateUserDto.RoleIds)
+            {
+                var userRole = new UserRole
+                {
+                    UserId = updateUserDto.Id,
+                    RoleId = roleId
+                };
+                await _userRoleRepository.AddAsync(userRole);
+            }
+            
             await _userRepository.SaveChangesAsync();
-            return _mapper.Map<UserDto>(existingUser);
+            await _userRoleRepository.SaveChangesAsync();
+            
+            return await GetUserByIdAsync(updateUserDto.Id);
         }
 
         public async Task<bool> DeleteUserAsync(Guid userId)

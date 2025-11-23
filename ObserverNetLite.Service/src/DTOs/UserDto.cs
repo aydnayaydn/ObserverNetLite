@@ -6,7 +6,9 @@ public class UserDto
 
     public string UserName { get; set; } = string.Empty;
     
-    public string Role { get; set; } = string.Empty; // admin, stakeholder
+    public List<Guid> RoleIds { get; set; } = new();
+    
+    public List<string> RoleNames { get; set; } = new();
 
     public string? Email { get; set; }
 }

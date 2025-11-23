@@ -61,5 +61,8 @@ app.UseRoleBasedAuthorization();
 app.MapConnectionEndpoint();
 app.MapUserEndpoints();
 app.MapAuthEndpoints();
+app.MapRoleEndpoints();
+app.MapPermissionEndpoints();
+app.MapMenuEndpoints();
 
 app.Run();
