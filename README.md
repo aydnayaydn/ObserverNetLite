@@ -1,6 +1,6 @@
 # ObserverNetLite
 
-A modern, scalable network monitoring and management system built with .NET 8 and Clean Architecture principles.
+A production-ready .NET 8 boilerplate/starter template featuring role-based authentication, permission management, and Clean Architecture principles.
 
 ## 🚀 Features
 
